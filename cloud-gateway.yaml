@@ -1,0 +1,55 @@
+server:
+  port: 9191
+
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: order-service
+                fallbackuri: forward:/orderServiceFallBack
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/payment/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: payment-service
+                fallbackuri: forward:/paymentServiceFallBack
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: product-service
+                fallbackuri: forward:/productServiceFallBack
+
+  security:
+    oauth2:
+      client:
+        registration:
+          auth0:
+            client-id: liSbdiZ4DFuVA2IVtvfe3uo4I7YbxlbM
+            client-secret: x7Nfeb-y-69dZbGpyHGWBc4trRCQovz5GIShbXYT1AU0_ss2yi-XfxO9gJuC4oaE
+            scope: openid profile email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          auth0:
+            issuer-uri: https://dev-qu8wyqiisoyxj5cu.us.auth0.com/
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
