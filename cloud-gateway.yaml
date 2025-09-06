@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: cloud-gateway
+  config:
+    import: configserver:http://localhost:9296
   cloud:
     gateway:
       routes:
@@ -16,6 +18,10 @@ spring:
               args:
                 name: order-service
                 fallbackuri: forward:/orderServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
         - id: payment-service
           uri: lb://payment-service
           predicates:
@@ -25,6 +31,10 @@ spring:
               args:
                 name: payment-service
                 fallbackuri: forward:/paymentServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
         - id: product-service
           uri: lb://product-service
           predicates:
@@ -34,6 +44,10 @@ spring:
               args:
                 name: product-service
                 fallbackuri: forward:/productServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
 
   security:
     oauth2:
@@ -48,8 +62,3 @@ spring:
         provider:
           auth0:
             issuer-uri: https://dev-qu8wyqiisoyxj5cu.us.auth0.com/
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
